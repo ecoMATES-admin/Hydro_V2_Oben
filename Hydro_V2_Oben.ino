@@ -29,12 +29,12 @@ void setup() {
   dhtSensorTop.begin();
   dhtSensorOutside.begin();
   Wire.begin();
-  SPI.usingInterrupt(0);
+  SPI.usingInterrupt(InterruptPin);
   mcp2515.reset();
   mcp2515.setBitrate(CAN_1000KBPS, MCP_16MHZ);
   mcp2515.setNormalMode();
   //#Pins
-  attachInterrupt(0, irqHandler, FALLING);
+  attachInterrupt(InterruptPin, irqHandler, FALLING);
 }
 
 void loop() {
@@ -43,7 +43,9 @@ void loop() {
     previousTime = currentTime;
 
     //#State Machines
-    //FSM_CirculationFan();
+    FSM_CirculationFan();
+    FSM_FilterFan();
+    FSM_LedsFan();
     FSM_CanRead();
     masterDummy();
 
