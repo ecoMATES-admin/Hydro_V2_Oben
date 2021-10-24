@@ -42,12 +42,14 @@ void loop() {
   if ( currentTime - previousTime >= systemPeriod ) {
     previousTime = currentTime;
 
+    //#CAN
+    FSM_CanRead();
+    
     //#State Machines
     FSM_CirculationFan();
     FSM_FilterFan();
     FSM_LedsFan();
-    FSM_CanRead();
-    masterDummy();
+    //masterDummy();
 
   }
 }

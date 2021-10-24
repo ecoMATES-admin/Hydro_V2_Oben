@@ -22,9 +22,25 @@ bool testFlag = false;
 unsigned long previousTime = 0; 
 unsigned long systemPeriod = 10; // milliseconds
 //#SystemTiming#
+unsigned long timer = 0;
+bool ledsOnTimingFlag= false;
+bool ledsOffTimingFlag = false;
+bool pumpTimingFlag = false;
+bool sensorTimingFlag = false;
 bool circulationFanOnFlag = true;
 bool ledsFanOnFlag = false;
 const bool filterFlagOnFlag = true;
+
+//#Sensor data bottom#
+float tempHumValBottom[2] = {0};
+float waterTempVal = 0;
+float phVal = 0;
+float ecVal = 0;
+float waterLevelVal = 0;
+
+//#FSM_Sensordata#
+float tempHumValTop[2] = {0};
+float tempHumValOutside[2] = {0};
 
 //#FSM_CanRead#
 volatile bool interrupt = false;
@@ -55,7 +71,7 @@ filterFanStates filterFanState = filterFanStates::FanOn;
 
 //#FSM_MasterTimer#
 enum class masterTimerStates:uint8_t{
-  CheckTime, cmdLight, cmdPump, cmdSensors
+  CheckTime, cmdLightOn, cmdLightOff, cmdPump, cmdSensors
 };
 masterTimerStates masterTimerState = masterTimerStates::CheckTime;
 

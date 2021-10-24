@@ -27,16 +27,46 @@ void FSM_CanRead() {
     tempF = canToFloat(tempInstF.data[5], tempInstF.data[4], tempInstF.data[0]);
     switch (tempInstF.data[1]) {
       case 3:
+        tempHumValBottom[1]= tempF;
+        if(DEBUG){
+        Serial.print("Temp Bottom: ");
+        Serial.println(tempHumValBottom[1]);
+        }
         break;
       case 4:
+      tempHumValBottom[0]= tempF;
+        if(DEBUG){
+        Serial.print("Hum Bottom: ");
+        Serial.println(tempHumValBottom[0]);
+        }
         break;
       case 5:
+      waterTempVal= tempF;
+        if(DEBUG){
+        Serial.print("Watertemp: ");
+        Serial.println(waterTempVal);
+        }
         break;
       case 6:
+      ecVal= tempF;
+        if(DEBUG){
+        Serial.print("EC: ");
+        Serial.println(ecVal);
+        }
         break;
       case 7:
+      phVal= tempF;
+        if(DEBUG){
+        Serial.print("PH: ");
+        Serial.println(phVal);
+        }
         break;
       case 8:
+      waterLevelVal= tempF;
+        if(DEBUG){
+        Serial.print("Waterlevel: ");
+        Serial.println(waterLevelVal);
+        }
         break;
     }
   }
