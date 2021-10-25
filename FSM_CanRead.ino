@@ -79,9 +79,8 @@ void canWrite(uint8_t purpose, uint8_t data = 0, uint16_t floatData = 65535) {
   canMsg.bytes[2] = 1;
   canMsg.bytes[1] = purpose;
   canMsg.bytes[0] = data;
-  if ( write(id, canMsg.value, floatData) != MCP2515::ERROR_OK )
-    Serial.println( "MCP2515 Buf Full" );
-
+   Serial.print("MCP Error:");
+    Serial.println(write(id, canMsg.value, floatData));
 }
 
 MCP2515::ERROR write(uint32_t id, uint32_t val, uint16_t floatData) {
@@ -95,13 +94,13 @@ MCP2515::ERROR write(uint32_t id, uint32_t val, uint16_t floatData) {
     frame.can_dlc = 4;
     for ( int8_t i = 0; i < 4; i++ ) {
       frame.data[i] = msg.bytes[i];
-      //Serial.println(msg.bytes[i]);
+      Serial.println(msg.bytes[i]);
     }
   } else {
     frame.can_dlc = 6;
     for ( int i = 0; i < 4; i++ ) { //prepare can message
       frame.data[i] = msg.bytes[i];
-      //Serial.println(msg.bytes[i]);
+      Serial.println(msg.bytes[i]);
     }
     frame.data[4] = splitInt(floatData, LSB);
     //Serial.println(frame.data[4]);

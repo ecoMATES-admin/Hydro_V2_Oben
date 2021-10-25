@@ -61,7 +61,7 @@ circulationFanStates circulationFanState = circulationFanStates::FanOn;
 enum class ledsFanStates:uint8_t{
   FanOn, FanOff
 };
-ledsFanStates ledsFanState = ledsFanStates::FanOn;
+ledsFanStates ledsFanState = ledsFanStates::FanOff;
 
 //#FSM_FilterFan#
 enum class filterFanStates:uint8_t{

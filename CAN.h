@@ -8,7 +8,7 @@
  */
 class CanFrameStream {
 
-    static const int buffsize = 10;
+    static const int buffsize = 5;
     can_frame cfBuffer[ buffsize ]; // struct from <mcp2515.h>
     int readIndex; //where to read next message
     int writeIndex; //where to write next message
@@ -57,7 +57,7 @@ struct instructionFloat{
 
 class CanBuffer {
 
-    static const int bufferSize = 5;
+    static const int bufferSize = 3;
     instruction fsmBuffer[bufferSize];
 
     int readIndex = 0;
@@ -106,7 +106,7 @@ inline bool CanBuffer::read(instruction &instruct){
 
 class CanFloatBuffer {
 
-    static const int bufferSize = 5;
+    static const int bufferSize = 3;
     instructionFloat fsmBuffer[bufferSize];
 
     int readIndex = 0;

@@ -35,6 +35,7 @@ void setup() {
   mcp2515.setNormalMode();
   //#Pins
   attachInterrupt(InterruptPin, irqHandler, FALLING);
+  pinMode(A3, OUTPUT);
 }
 
 void loop() {
@@ -43,12 +44,14 @@ void loop() {
     previousTime = currentTime;
 
     //#CAN
-    FSM_CanRead();
+    canRead();
     
     //#State Machines
+    FSM_CanRead();
     FSM_CirculationFan();
     FSM_FilterFan();
     FSM_LedsFan();
+    FSM_MasterTimer();
     //masterDummy();
 
   }
