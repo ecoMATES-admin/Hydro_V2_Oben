@@ -7,10 +7,14 @@ void FSM_CanRead() {
   if (canBuffer.read(tempInst)) {
     switch (tempInst.data[1]) {
       case 0:
+      Serial.println("Sensor command:");
         break;
       case 1:
+      Serial.println("Pump command:");
         break;
       case 2:
+      Serial.print("Light command:");
+      Serial.println(tempInst.data[0]);
         break;
       case 9:
         break;
@@ -79,12 +83,12 @@ void canWrite(uint8_t purpose, uint8_t data = 0, uint16_t floatData = 65535) {
   canMsg.bytes[2] = 1;
   canMsg.bytes[1] = purpose;
   canMsg.bytes[0] = data;
-   Serial.print("MCP Error:");
-    Serial.println(write(id, canMsg.value, floatData));
+   //Serial.print("MCP Error:");
+   //Serial.println(write(id, canMsg.value, floatData));
 }
 
 MCP2515::ERROR write(uint32_t id, uint32_t val, uint16_t floatData) {
-  Serial.println("canWrite");
+  //Serial.println("canWrite");
   can_frame frame;
   frame.can_id = id;
   my_can_msg msg;
@@ -94,13 +98,13 @@ MCP2515::ERROR write(uint32_t id, uint32_t val, uint16_t floatData) {
     frame.can_dlc = 4;
     for ( int8_t i = 0; i < 4; i++ ) {
       frame.data[i] = msg.bytes[i];
-      Serial.println(msg.bytes[i]);
+      //Serial.println(msg.bytes[i]);
     }
   } else {
     frame.can_dlc = 6;
     for ( int i = 0; i < 4; i++ ) { //prepare can message
       frame.data[i] = msg.bytes[i];
-      Serial.println(msg.bytes[i]);
+      //Serial.println(msg.bytes[i]);
     }
     frame.data[4] = splitInt(floatData, LSB);
     //Serial.println(frame.data[4]);

@@ -70,17 +70,37 @@ enum class filterFanStates:uint8_t{
 filterFanStates filterFanState = filterFanStates::FanOn;
 
 //#FSM_MasterTimer#
-enum class masterTimerStates:uint8_t{
-  CheckTime, cmdLightOn, cmdLightOff, cmdPump, cmdSensors
+struct timeStamp{
+  int h,m;
 };
-masterTimerStates masterTimerState = masterTimerStates::CheckTime;
-
-
-
-
-
-
-
+//int hOn = 8, mOn = 0;
+//Test purposes
+int hOn = 14, mOn = 12;
+timeStamp lightOff[4] ={
+  {20,0},
+  {2,0},
+  {20,0},
+  {14,18} //Test purposes
+};
+enum daytimes:uint8_t{
+  day, night
+};
+daytimes daytime = night;
+enum phases:uint8_t{
+  sprout, veggie, flower,test
+};
+phases phase = test; //phase needs to be stored in EEPROM
+phases uiPhase = test;
+/*To be implemented later if need be
+struct phase{
+  phases p = sprout;
+  int h = 0;
+  int m = 0;
+};*/
+enum class masterTimerStates:uint8_t{
+  Init,DayTimer, NightTimer, CmdLightOn, CmdLightOff, CmdPump, CmdSensors
+};
+masterTimerStates masterTimerState = masterTimerStates::Init;
 
 
 #endif
