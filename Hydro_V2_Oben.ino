@@ -25,7 +25,7 @@ MCP2515 mcp2515(A3); //SS pin A3
 
 void setup() {
   //#Objects
-  Serial.begin(9600);
+  Serial.begin(2000000);
   dhtSensorTop.begin();
   dhtSensorOutside.begin();
   Wire.begin();
@@ -52,6 +52,7 @@ void loop() {
     FSM_FilterFan();
     FSM_LedsFan();
     FSM_MasterTimer();
+    FSM_Sensordata();
     //masterDummy();
 
   }

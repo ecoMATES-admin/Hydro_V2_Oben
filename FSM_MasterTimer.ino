@@ -42,6 +42,7 @@ void FSM_MasterTimer() {
       break;
     case masterTimerStates::cmdSensors:
       canWrite(0);
+      sampleFlagTop = true;
       masterTimerState = masterTimerStates::CheckTime;
       break;
     default:

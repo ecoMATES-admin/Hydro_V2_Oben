@@ -23,24 +23,40 @@ unsigned long previousTime = 0;
 unsigned long systemPeriod = 10; // milliseconds
 //#SystemTiming#
 unsigned long timer = 0;
+//MasterTimer
 bool ledsOnTimingFlag= false;
 bool ledsOffTimingFlag = false;
 bool pumpTimingFlag = false;
 bool sensorTimingFlag = false;
+//Peripherals
+bool sampleFlagTop = false;
 bool circulationFanOnFlag = true;
 bool ledsFanOnFlag = false;
 const bool filterFlagOnFlag = true;
 
-//#Sensor data bottom#
+//#Sensor data #
 float tempHumValBottom[2] = {0};
+float tempHumValTop[2] = {0};
+float tempHumValOutside[2] = {0};
 float waterTempVal = 0;
 float phVal = 0;
 float ecVal = 0;
 float waterLevelVal = 0;
 
 //#FSM_Sensordata#
-float tempHumValTop[2] = {0};
-float tempHumValOutside[2] = {0};
+uint8_t readCounter = 0; //timer for ReadValues State
+float humError = 199.0, tempError = 99.0;
+uint8_t dthTopCounter = 0;
+uint8_t dthOutsideCounter = 0;
+int n = 250;
+float tempHumTop[2] = {0};
+float tempHumOutside[2] = {0};
+float tempHumTopMean[2] = {0};
+float tempHumOutsideMean[2] = {0};
+enum class sensorStates:uint8_t{
+  Idle, ReadValues,CalculateMean
+};
+sensorStates sensorState =sensorStates::Idle;
 
 //#FSM_CanRead#
 volatile bool interrupt = false;
