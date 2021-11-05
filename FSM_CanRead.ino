@@ -7,13 +7,10 @@ void FSM_CanRead() {
   if (canBuffer.read(tempInst)) {
     switch (tempInst.data[1]) {
       case 0:
-      Serial.println("canRead Sensors");
         break;
       case 1:
-      Serial.println("canRead pump");
         break;
       case 2:
-      Serial.println("canRead light");
         break;
       case 9:
         break;

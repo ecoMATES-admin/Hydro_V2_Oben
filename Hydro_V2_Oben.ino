@@ -53,7 +53,7 @@ void loop() {
     FSM_FilterFan();
     FSM_LedsFan();
     FSM_MasterTimer();
-    //FSM_Sensordata();
+    FSM_Sensordata();
     //masterDummy();
 
   }

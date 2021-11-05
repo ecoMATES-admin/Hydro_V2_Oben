@@ -46,15 +46,11 @@ float waterLevelVal = 0;
 //#FSM_Sensordata#
 uint8_t readCounter = 0; //timer for ReadValues State
 float humError = 199.0, tempError = 99.0;
-uint8_t dthTopCounter = 0;
-uint8_t dthOutsideCounter = 0;
-int n = 250;
 float tempHumTop[2] = {0};
 float tempHumOutside[2] = {0};
-float tempHumTopMean[2] = {0};
-float tempHumOutsideMean[2] = {0};
+
 enum class sensorStates:uint8_t{
-  Idle, ReadValues,CalculateMean
+  Idle, ReadTop,ReadOutside
 };
 sensorStates sensorState =sensorStates::Idle;
 
