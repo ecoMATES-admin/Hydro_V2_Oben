@@ -33,6 +33,7 @@ void setup() {
   mcp2515.reset();
   mcp2515.setBitrate(CAN_1000KBPS, MCP_16MHZ);
   mcp2515.setNormalMode();
+  //mcp2515.setLoopbackMode();
   //#Pins
   attachInterrupt(InterruptPin, irqHandler, FALLING);
   pinMode(A3, OUTPUT);
@@ -52,7 +53,7 @@ void loop() {
     FSM_FilterFan();
     FSM_LedsFan();
     FSM_MasterTimer();
-    FSM_Sensordata();
+    //FSM_Sensordata();
     //masterDummy();
 
   }
