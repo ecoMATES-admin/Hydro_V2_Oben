@@ -1,5 +1,5 @@
-#ifndef CAN_H
-#define CAN_H
+#ifndef CAN1_H
+#define CAN1_H
 
 /*
  * CAN_FRAME_STREAM

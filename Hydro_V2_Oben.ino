@@ -3,10 +3,13 @@
 #include <Wire.h>
 #include <OneWire.h>
 #include <mcp2515.h>
+#include "RTClib.h"
 //##Header-Files##
 #include "globalVariables.h"
 #include "MOSFET.h"
+#include "CAN1.h"
 #include "CAN.h"
+//#include "mcp2515.h"
 //##Object intialization##
 //#TempHum#
 #define DHTTYPE DHT22
@@ -21,8 +24,9 @@ volatile CanBuffer canBuffer;
 volatile CanFloatBuffer canFloatBuffer;
 //Objects Can Comm
 volatile CanFrameStream cfStream;
-MCP2515 mcp2515(A3); //SS pin A3
-
+MCP2515 mcp2515(11); //SS pin A3
+//#RTC
+RTC_DS1307 rtc;
 void setup() {
   //#Objects
   Serial.begin(2000000);
@@ -34,6 +38,24 @@ void setup() {
   mcp2515.setBitrate(CAN_1000KBPS, MCP_16MHZ);
   mcp2515.setNormalMode();
   //mcp2515.setLoopbackMode();
+
+    /*
+      if (! rtc.isrunning()) {
+      Serial.println("RTC is NOT running!");
+      // following line sets the RTC to the date & time this sketch was compiled
+      rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+      }*/
+    rtc.begin();
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  if (DEBUG) {
+    DateTime now = rtc.now();
+    Serial.print("Hour: ");
+    Serial.println(now.hour());
+    Serial.print("Minute: ");
+    Serial.println(now.minute());
+    Serial.print("Second: ");
+    Serial.println(now.second());
+  }
   //#Pins
   attachInterrupt(InterruptPin, irqHandler, FALLING);
   pinMode(A3, OUTPUT);
@@ -46,7 +68,7 @@ void loop() {
 
     //#CAN
     canRead();
-    
+
     //#State Machines
     FSM_CanRead();
     FSM_CirculationFan();
