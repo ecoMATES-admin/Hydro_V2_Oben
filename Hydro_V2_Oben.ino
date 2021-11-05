@@ -24,7 +24,7 @@ volatile CanBuffer canBuffer;
 volatile CanFloatBuffer canFloatBuffer;
 //Objects Can Comm
 volatile CanFrameStream cfStream;
-MCP2515 mcp2515(11); //SS pin A3
+MCP2515 mcp2515(A3); //SS pin A3
 //#RTC
 RTC_DS1307 rtc;
 void setup() {
@@ -65,6 +65,7 @@ void loop() {
   unsigned long currentTime = millis();
   if ( currentTime - previousTime >= systemPeriod ) {
     previousTime = currentTime;
+    Serial.println(previousTime);
 
     //#CAN
     canRead();

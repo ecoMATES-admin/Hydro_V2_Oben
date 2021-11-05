@@ -6,18 +6,22 @@ void FSM_MasterTimer() {
     case masterTimerStates::Init:
       if (DEBUG)
         Serial.println("Init");
-      if (now.hour() >= hOn && now.minute() >= mOn && now.hour() <= lightOff[phase].h && now.minute() < lightOff[phase].m) {
+      if (now.hour() >= hOn  && now.hour() <= lightOff[phase].h && now.minute() < lightOff[phase].m) {
         masterTimerState = masterTimerStates::DayTimer;
         daytime = day;
+        Serial.println("DayTimer");
+        canWrite(2, 1);
+      ledsFanOnFlag = true;
       } else {
         masterTimerState = masterTimerStates::NightTimer;
         daytime = night;
+        Serial.println("NightTimer");
       }
       break;
     case masterTimerStates::DayTimer:
       if (DEBUG)
-        Serial.println("DayTimer");
-      if ((timer+ 100*60*10)% (100  * 60* 60 * pumpTime)== 0)  // every 2h but 10 minutes shifted so that last watering happens 10 min before the light is turned off
+        //Serial.println("DayTimer");
+      if ((timer+ 100* 60 * 10)% (100  * 6/*0*/ * 60 * pumpTime)== 0)  // every 2h but 10 minutes shifted so that last watering happens 10 min before the light is turned off
         pumpTimingFlag = true;
       if (timer % (100  * /*60 * */ 30) == 0) // every 30 min with f,Sys= 100 Hz !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         sensorTimingFlag = true;
@@ -42,10 +46,11 @@ void FSM_MasterTimer() {
       break;
     case masterTimerStates::NightTimer:
       if (DEBUG)
-        Serial.println("NightTimer");
-      if (now.hour() == hPump && now.minute() == mPump && !pumpBlock) // just intermediate solution till light ramp is working
+        //Serial.println("NightTimer");
+      if (now.hour() == hPump && now.minute() == mPump && pumpBlock ==false){ // just intermediate solution till light ramp is working
         pumpBlock = true;
         pumpTimingFlag = true;
+      }
       if (timer % (100 * /*60 * */30) == 0) // every 30 min with f,Sys= 100 Hz   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         sensorTimingFlag = true;
       if (now.hour() == hOn && now.minute() == mOn) {
@@ -69,8 +74,8 @@ void FSM_MasterTimer() {
       }
       break;
     case masterTimerStates::CmdLightOn:
-      if (DEBUG)
-        Serial.println("CmdLightOn");
+      if (DEBUG){
+        Serial.println("CmdLightOn");}
       //An dieser Stelle mithilfe von switch maximale Lichtintensität abhängig von Phase übergeben
       canWrite(2, 1);
       ledsFanOnFlag = true;
@@ -79,16 +84,18 @@ void FSM_MasterTimer() {
       masterTimerState = masterTimerStates::DayTimer;
       return;
     case masterTimerStates::CmdLightOff:
-      if (DEBUG)
-        Serial.println("CmdLightOff");
+      if (DEBUG){
+        Serial.println("CmdLightOff");}
       canWrite(2, 0);
       ledsFanOnFlag = false;
       daytime = night;
       masterTimerState = masterTimerStates::NightTimer;
       return;
     case masterTimerStates::CmdPump:
-      if (DEBUG)
+      canWrite(1);
+      if (DEBUG){
         Serial.println("CmdPump");
+      }
       if (daytime == day)
         masterTimerState = masterTimerStates::DayTimer;
       else

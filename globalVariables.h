@@ -16,7 +16,7 @@
 
 //##Variables##
 //#Debug#
-#define DEBUG 1
+#define DEBUG 0
 bool testFlag = false;
 //#SystemClock#
 unsigned long previousTime = 0; 
@@ -87,15 +87,15 @@ struct timeStamp{
   int h,m;
 };
 //int hOn = 8, mOn = 0;
-int hPump = 7, mPump =50;
+int hPump = 18, mPump =23;
 uint8_t pumpTime = 2; // can be set to 1,2,4 or 6
 //Test purposes
-int hOn = 14, mOn = 12;
+int hOn = 18, mOn = 33;
 timeStamp lightOff[4] ={
   {20,0},
   {2,0},
   {20,0},
-  {14,18} //Test purposes
+  {19,30} //Test purposes
 };
 enum daytimes:uint8_t{
   day, night
