@@ -8,8 +8,6 @@
 #include "globalVariables.h"
 #include "MOSFET.h"
 #include "CAN1.h"
-#include "CAN.h"
-//#include "mcp2515.h"
 //##Object intialization##
 //#TempHum#
 #define DHTTYPE DHT22
@@ -22,7 +20,6 @@ MOSFET fanLeds(FanLeds);
 //#Can
 volatile CanBuffer canBuffer;
 volatile CanFloatBuffer canFloatBuffer;
-//Objects Can Comm
 volatile CanFrameStream cfStream;
 MCP2515 mcp2515(A3); //SS pin A3
 //#RTC

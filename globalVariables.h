@@ -24,6 +24,10 @@ unsigned long systemPeriod = 10; // milliseconds
 //#SystemTiming#
 unsigned long timer = 0;
 bool pumpBlock = false; //pump is triggered byrtc in nighttime, to prevent multiple pump commands pumpBlock is implemented
+int pumpBlockCounter = 0;
+bool sensorBlock = false;
+int sensorBlockCounter = 0;
+
 //MasterTimer
 bool ledsOnTimingFlag= false;
 bool ledsOffTimingFlag = false;
@@ -83,14 +87,12 @@ enum class filterFanStates:uint8_t{
 filterFanStates filterFanState = filterFanStates::FanOn;
 
 //#FSM_MasterTimer#
+//Light
 struct timeStamp{
   int h,m;
 };
 //int hOn = 8, mOn = 0;
-int hPump = 18, mPump =23;
-uint8_t pumpTime = 2; // can be set to 1,2,4 or 6
-//Test purposes
-int hOn = 18, mOn = 33;
+int hOn = 18, mOn = 33; //Test purposes
 timeStamp lightOff[4] ={
   {20,0},
   {2,0},
@@ -106,12 +108,38 @@ enum phases:uint8_t{
 };
 phases phase = test; //phase needs to be stored in EEPROM
 phases uiPhase = test;
-/*To be implemented later if need be
-struct phase{
-  phases p = sprout;
-  int h = 0;
-  int m = 0;
-};*/
+//Pump
+int hPump = 18, mPump =23;
+enum pumpIntervals:uint8_t{
+   h1=1, h2=2, h4=4, h6=6
+};
+pumpIntervals pumpInterval = h2;
+struct pumpTime{
+  uint8_t h,m;
+};
+uint8_t pumpIterator = 1;
+pumpTime pumpTimes[18] ={ //cyle/h
+  {8,50},
+  {9,50},
+  {10,50},
+  {11,50},
+  {12,50},
+  {13,50},
+  {14,50},
+  {15,50},
+  {16,50},
+  {17,50},
+  {18,50},
+  {19,50},
+  {20,50},
+  {21,50},
+  {22,50},
+  {23,50},
+  {0,50},
+  {1,50},
+};
+
+
 enum class masterTimerStates:uint8_t{
   Init,DayTimer, NightTimer, CmdLightOn, CmdLightOff, CmdPump, CmdSensors
 };

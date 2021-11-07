@@ -21,15 +21,36 @@ void FSM_MasterTimer() {
     case masterTimerStates::DayTimer:
       if (DEBUG)
         //Serial.println("DayTimer");
-      if ((timer+ 100* 60 * 10)% (100  * 6/*0*/ * 60 * pumpTime)== 0)  // every 2h but 10 minutes shifted so that last watering happens 10 min before the light is turned off
+      if (pumpBlock = true){ //pump command debounce
+        pumpBlockCounter++;
+        if (pumpBlockCounter>=7000){
+          pumpBlock = false;
+          pumpBlockCounter = 0;
+        }
+      }
+      if (sensorBlock = true){ //sensor command debounce
+        sensorBlockCounter++;
+        if (sensorBlockCounter>=7000){
+          sensorBlock = false;
+          sensorBlockCounter = 0;
+        }
+      }
+      if (now.hour() == pumpTimes[pumpIterator*pumpInterval-1].h && now.minute() == pumpTimes[pumpIterator*pumpInterval-1].m && pumpBlock ==false){  // every 2h but 10 minutes shifted so that last watering happens 10 min before the light is turned off
         pumpTimingFlag = true;
-      if (timer % (100  * /*60 * */ 30) == 0) // every 30 min with f,Sys= 100 Hz !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        pumpBlock=true;
+        pumpIterator++;
+      }
+      if ((now.minute() == 0 || now.minute() == 30) && sensorBlock == false){ 
         sensorTimingFlag = true;
+        sensorBlock = true;
+      }
       if (now.hour() == lightOff[phase].h && now.minute() == lightOff[phase].m) {
         ledsOffTimingFlag = true;
-        sensorTimingFlag = false;
+        //sensorTimingFlag = false; so as not to overwrite sensor command
         pumpTimingFlag = false;
-        timer = 0;
+        pumpIterator = 1;
+        pumpBlock = false;
+        pumpBlockCounter = 0;
       }
 
       if (pumpTimingFlag) {
@@ -47,17 +68,25 @@ void FSM_MasterTimer() {
     case masterTimerStates::NightTimer:
       if (DEBUG)
         //Serial.println("NightTimer");
-      if (now.hour() == hPump && now.minute() == mPump && pumpBlock ==false){ // just intermediate solution till light ramp is working
+      if (sensorBlock = true){ //sensor command debounce
+        sensorBlockCounter++;
+        if (sensorBlockCounter>=7000){
+          sensorBlock = false;
+          sensorBlockCounter = 0;
+        }
+      } 
+      if (now.hour() == hPump && now.minute() == mPump && pumpBlock ==false){ 
         pumpBlock = true;
         pumpTimingFlag = true;
       }
-      if (timer % (100 * /*60 * */30) == 0) // every 30 min with f,Sys= 100 Hz   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      if ((now.minute() == 0 || now.minute() == 30) && sensorBlock == false){ 
         sensorTimingFlag = true;
+        sensorBlock = true;
+      }
       if (now.hour() == hOn && now.minute() == mOn) {
         ledsOnTimingFlag = true;
+        //sensorTimingFlag = false;
         pumpBlock = false;
-        timer = 0;
-        sensorTimingFlag = false;
         pumpTimingFlag = false;
       }
 
