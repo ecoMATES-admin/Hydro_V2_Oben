@@ -22,8 +22,7 @@ bool testFlag = false;
 unsigned long previousTime = 0; 
 unsigned long systemPeriod = 10; // milliseconds
 //#SystemTiming#
-unsigned long timer = 0;
-bool pumpBlock = false; //pump is triggered byrtc in nighttime, to prevent multiple pump commands pumpBlock is implemented
+bool pumpBlock = false; //pump is triggered by rtc, to prevent multiple pump commands pumpBlock is implemented
 int pumpBlockCounter = 0;
 bool sensorBlock = false;
 int sensorBlockCounter = 0;
@@ -118,7 +117,8 @@ struct pumpTime{
   uint8_t h,m;
 };
 uint8_t pumpIterator = 1;
-pumpTime pumpTimes[18] ={ //cyle/h
+const pumpTimeArraySize = 18;
+pumpTime pumpTimes[pumpTimeArraySize] ={ //cyle/h
   {8,50},
   {9,50},
   {10,50},

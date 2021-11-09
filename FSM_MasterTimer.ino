@@ -6,12 +6,13 @@ void FSM_MasterTimer() {
     case masterTimerStates::Init:
       if (DEBUG)
         Serial.println("Init");
-      if (now.hour() >= hOn  && now.hour() <= lightOff[phase].h && now.minute() < lightOff[phase].m) {
+      if (/*now.hour() >= hOn  && (now.hour() < lightOff[phase].h || now.hour() == lightOff[phase].h && now.minute() < lightOff[phase].m || */) { //need to implement davids solution, otherwise overflow 23 ->0 remais a problem
         masterTimerState = masterTimerStates::DayTimer;
         daytime = day;
         Serial.println("DayTimer");
         canWrite(2, 1);
-      ledsFanOnFlag = true;
+        ledsFanOnFlag = true;
+        pumpIterator = calcPumpIterator();
       } else {
         masterTimerState = masterTimerStates::NightTimer;
         daytime = night;
@@ -21,26 +22,26 @@ void FSM_MasterTimer() {
     case masterTimerStates::DayTimer:
       if (DEBUG)
         //Serial.println("DayTimer");
-      if (pumpBlock = true){ //pump command debounce
-        pumpBlockCounter++;
-        if (pumpBlockCounter>=7000){
-          pumpBlock = false;
-          pumpBlockCounter = 0;
+        if (pumpBlock = true) { //pump command debounce
+          pumpBlockCounter++;
+          if (pumpBlockCounter >= 700 * systemPeriod) { //70 seconds
+            pumpBlock = false;
+            pumpBlockCounter = 0;
+          }
         }
-      }
-      if (sensorBlock = true){ //sensor command debounce
+      if (sensorBlock = true) { //sensor command debounce
         sensorBlockCounter++;
-        if (sensorBlockCounter>=7000){
+        if (sensorBlockCounter >= 700 * systemPeriod) { //70 seconds
           sensorBlock = false;
           sensorBlockCounter = 0;
         }
       }
-      if (now.hour() == pumpTimes[pumpIterator*pumpInterval-1].h && now.minute() == pumpTimes[pumpIterator*pumpInterval-1].m && pumpBlock ==false){  // every 2h but 10 minutes shifted so that last watering happens 10 min before the light is turned off
+      if (now.hour() == pumpTimes[pumpIterator * pumpInterval - 1].h && now.minute() == pumpTimes[pumpIterator * pumpInterval - 1].m && pumpBlock == false) { // every 2h but 10 minutes shifted so that last watering happens 10 min before the light is turned off
         pumpTimingFlag = true;
-        pumpBlock=true;
+        pumpBlock = true;
         pumpIterator++;
       }
-      if ((now.minute() == 0 || now.minute() == 30) && sensorBlock == false){ 
+      if ((now.minute() == 0 || now.minute() == 30) && sensorBlock == false) {
         sensorTimingFlag = true;
         sensorBlock = true;
       }
@@ -68,18 +69,18 @@ void FSM_MasterTimer() {
     case masterTimerStates::NightTimer:
       if (DEBUG)
         //Serial.println("NightTimer");
-      if (sensorBlock = true){ //sensor command debounce
-        sensorBlockCounter++;
-        if (sensorBlockCounter>=7000){
-          sensorBlock = false;
-          sensorBlockCounter = 0;
+        if (sensorBlock = true) { //sensor command debounce
+          sensorBlockCounter++;
+          if (sensorBlockCounter >= 7000) {
+            sensorBlock = false;
+            sensorBlockCounter = 0;
+          }
         }
-      } 
-      if (now.hour() == hPump && now.minute() == mPump && pumpBlock ==false){ 
+      if (now.hour() == hPump && now.minute() == mPump && pumpBlock == false) {
         pumpBlock = true;
         pumpTimingFlag = true;
       }
-      if ((now.minute() == 0 || now.minute() == 30) && sensorBlock == false){ 
+      if ((now.minute() == 0 || now.minute() == 30) && sensorBlock == false) {
         sensorTimingFlag = true;
         sensorBlock = true;
       }
@@ -103,8 +104,9 @@ void FSM_MasterTimer() {
       }
       break;
     case masterTimerStates::CmdLightOn:
-      if (DEBUG){
-        Serial.println("CmdLightOn");}
+      if (DEBUG) {
+        Serial.println("CmdLightOn");
+      }
       //An dieser Stelle mithilfe von switch maximale Lichtintensität abhängig von Phase übergeben
       canWrite(2, 1);
       ledsFanOnFlag = true;
@@ -113,8 +115,9 @@ void FSM_MasterTimer() {
       masterTimerState = masterTimerStates::DayTimer;
       return;
     case masterTimerStates::CmdLightOff:
-      if (DEBUG){
-        Serial.println("CmdLightOff");}
+      if (DEBUG) {
+        Serial.println("CmdLightOff");
+      }
       canWrite(2, 0);
       ledsFanOnFlag = false;
       daytime = night;
@@ -122,7 +125,7 @@ void FSM_MasterTimer() {
       return;
     case masterTimerStates::CmdPump:
       canWrite(1);
-      if (DEBUG){
+      if (DEBUG) {
         Serial.println("CmdPump");
       }
       if (daytime == day)
@@ -143,5 +146,27 @@ void FSM_MasterTimer() {
     default:
       Serial.println("Error: FSM_MasterTimer()");
   }
-  timer++;
+}
+
+uint8_t calcPumpIterator() {
+  uint8_t i = 1;
+  while (i < pumTimesArray) {
+    if (now.hour() > pumpTimes[i * pumpInterval - 1].h) { //itarate through pumTimes[] and compare now.hour() with h entries, only stop when now.hour() is smaller or identical to current h entry
+      i ++;
+    } else {
+      if (now.hour() == pumpTimes[i * pumpInterval - 1].h) { // if now.hour() == h from current entry, then the m entry decides value of pumpInterator
+        if (now.minute() == pumpTimes[pumpIterator * pumpInterval - 1].m) {
+          pumpBlock = true;
+          pumpTimingFlag = true;
+          return i++;
+        } else if (now.minute() < pumpTimes[pumpIterator * pumpInterval - 1].m) {
+          return i;
+        } else {
+          return i++;
+        }
+      }else{ // if now.hour() is smaller then h.entry then current pumpIterator is automatically to large and needs to be decremented by 1
+        return i--;
+      }
+    }
+  }
 }
