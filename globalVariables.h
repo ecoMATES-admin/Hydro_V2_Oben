@@ -11,8 +11,12 @@
 #define FanLeds 9
 #define FanCirculation 10
 
-#define MSB 1
-#define LSB 0
+//uint32_t = BYT3 BYT2 BYT1 BYT0
+//uint16_t = BYT1 BYT0
+#define BYT3 3
+#define BYT2 2
+#define BYT1 1
+#define BYT0 0
 
 //##Variables##
 //#Debug#
@@ -21,11 +25,6 @@ bool testFlag = false;
 //#SystemClock#
 unsigned long previousTime = 0; 
 unsigned long systemPeriod = 10; // milliseconds
-//#SystemTiming#
-bool pumpBlock = false; //pump is triggered by rtc, to prevent multiple pump commands pumpBlock is implemented
-int pumpBlockCounter = 0;
-bool sensorBlock = false;
-int sensorBlockCounter = 0;
 
 //MasterTimer
 bool ledsOnTimingFlag= false;
@@ -86,16 +85,23 @@ enum class filterFanStates:uint8_t{
 filterFanStates filterFanState = filterFanStates::FanOn;
 
 //#FSM_MasterTimer#
+uint8_t a,b,c,d;
+const uint32_t dayInSec = 86400;
+const uint16_t hourInSec = 3600;
+const uint8_t minInSec = 60;
+uint32_t daytimeSnap = 0;
+uint32_t pumptimeSnap = 0;
+uint32_t sampletimeSnap = 0;
+bool pumpBlock = false;
 //Light
 struct timeStamp{
   int h,m;
 };
-//int hOn = 8, mOn = 0;
-int hOn = 18, mOn = 33; //Test purposes
-timeStamp lightOff[4] ={
-  {20,0},
-  {2,0},
-  {20,0},
+int hOn = 8, mOn = 0; //Test purposes
+timeStamp daytimeDuration[4] ={
+  {12,0},
+  {18,0},
+  {12,0},
   {19,30} //Test purposes
 };
 enum daytimes:uint8_t{
@@ -110,40 +116,16 @@ phases uiPhase = test;
 //Pump
 int hPump = 18, mPump =23;
 enum pumpIntervals:uint8_t{
-   h1=1, h2=2, h4=4, h6=6
+   h1=1, h2=2, h3=3, h6=6
 };
 pumpIntervals pumpInterval = h2;
+pumpIntervals uiPumpInterval = h2;
 struct pumpTime{
   uint8_t h,m;
 };
-uint8_t pumpIterator = 1;
-const pumpTimeArraySize = 18;
-pumpTime pumpTimes[pumpTimeArraySize] ={ //cyle/h
-  {8,50},
-  {9,50},
-  {10,50},
-  {11,50},
-  {12,50},
-  {13,50},
-  {14,50},
-  {15,50},
-  {16,50},
-  {17,50},
-  {18,50},
-  {19,50},
-  {20,50},
-  {21,50},
-  {22,50},
-  {23,50},
-  {0,50},
-  {1,50},
-};
-
-
 enum class masterTimerStates:uint8_t{
   Init,DayTimer, NightTimer, CmdLightOn, CmdLightOff, CmdPump, CmdSensors
 };
 masterTimerStates masterTimerState = masterTimerStates::Init;
-
 
 #endif

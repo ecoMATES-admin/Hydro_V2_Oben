@@ -3,7 +3,8 @@
 #include <Wire.h>
 #include <OneWire.h>
 #include <mcp2515.h>
-#include "RTClib.h"
+#include <RTClib.h>
+#include <EEPROM.h>
 //##Header-Files##
 #include "globalVariables.h"
 #include "MOSFET.h"
@@ -24,6 +25,7 @@ volatile CanFrameStream cfStream;
 MCP2515 mcp2515(A3); //SS pin A3
 //#RTC
 RTC_DS1307 rtc;
+DateTime now;
 void setup() {
   //#Objects
   Serial.begin(2000000);
@@ -63,6 +65,7 @@ void loop() {
   if ( currentTime - previousTime >= systemPeriod ) {
     previousTime = currentTime;
     Serial.println(previousTime);
+    now = rtc.now();
 
     //#CAN
     canRead();

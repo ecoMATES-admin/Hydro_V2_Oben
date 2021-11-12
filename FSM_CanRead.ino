@@ -106,9 +106,9 @@ MCP2515::ERROR write(uint32_t id, uint32_t val, uint16_t floatData) {
       frame.data[i] = msg.bytes[i];
       Serial.println(msg.bytes[i]);
     }
-    frame.data[4] = splitInt(floatData, LSB);
+    frame.data[4] = splitInt(floatData, BYT0);
     Serial.println(frame.data[4]);
-    frame.data[5] = splitInt(floatData, MSB);
+    frame.data[5] = splitInt(floatData, BYT1);
     Serial.println(frame.data[5]);
   }
   return mcp2515.sendMessage(&frame);
@@ -207,9 +207,9 @@ uint8_t getExponent(float tempF) {
 }
 
 uint8_t splitInt(uint16_t floatData, uint8_t byt) {
-  if ( byt == LSB) {
+  if ( byt == BYT0) {
     return (floatData & 0xFF);
-  } else if (byt == MSB) {
+  } else if (byt == BYT1) {
     return ((floatData >> 8) & 0xFF);
   } else {                                          //Just for testing purposes
     Serial.println("splitInt() wrong byt input!!!!");
