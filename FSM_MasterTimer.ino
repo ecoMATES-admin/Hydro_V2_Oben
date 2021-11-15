@@ -1,25 +1,43 @@
 void FSM_MasterTimer() {
-
+  //EEPROM write missing
+  uint32_t daytimeSec;
   switch (masterTimerState) {
     case masterTimerStates::Init:
       if (DEBUG)
         Serial.println("Init");
       //Retrieve last daytime snapshot from EEPROM
-      a = EEPROM.read(BYT3);
-      b = EEPROM.read(BYT2);
-      c = EEPROM.read(BYT1);
-      d = EEPROM.read(BYT0);
-      daytimeSnap = eepromToInt(a, b, c, d);
-      uint32_t dif = (now.unixtime() - daytimeSnap) % dayInSec; //Calculate difference nowtime vs daytimeSnap, Modulo in case system was off for longer than a day
-      sampletimeSnap = now.unixtime() - (dif%(30*minInSec)); // Same as pumptime
+      EEPROM.get(BYT0, daytimeSnap);
+      if (DEBUG) {
+        Serial.println("daytimeSnap");
+        Serial.println(daytimeSnap);
+        Serial.println("now.unixtime()");
+        Serial.println(now.unixtime());
+      }
+      dif = (now.unixtime() - daytimeSnap) % dayInSec; //Calculate difference nowtime vs daytimeSnap, Modulo in case system was off for longer then a day
+      sampletimeSnap = now.unixtime() - (dif % (sampleTime * minInSec)); // Same as pumptime
+      if (DEBUG) {
+        Serial.println("dif");
+        Serial.println(dif);
+        Serial.println("sampletimeSnap");
+        Serial.println(sampletimeSnap);
+      }
       //here the phase and pumpcycle should also be retrieved from EEPROM
-      if (dif < (daytimeDuration[phase].h*hourInSec + daytimeDuration[phase].m*minInSec)) { 
+      daytimeSec= daytimeDuration[phase].h * hourInSec + daytimeDuration[phase].m * minInSec;
+      if (DEBUG) {
+        Serial.println("daytimeSec");
+        Serial.println(daytimeSec);
+      }
+      if (dif < daytimeSec) {
         masterTimerState = masterTimerStates::DayTimer;
         daytime = day;
         Serial.println("DayTimer");
         canWrite(2, 1);
         ledsFanOnFlag = true;
-        pumptimeSnap = now.unixtime() - ((dif+10*minInSec)%(pumpInterval*hourInSec)); //Calculate pumptimeSnap, by first calculating seconds passed since the last pumptime and then subtracting that value from nowtime. 10 min shift bcs of pumptime shift 
+        pumptimeSnap = now.unixtime() - ((dif + 10 * minInSec) % (pumpInterval * hourInSec)); //Calculate pumptimeSnap, by first calculating seconds passed since the last pumptime and then subtracting that value from nowtime. 10 min shift bcs of pumptime shift
+        if (DEBUG) {
+        Serial.println("pumptimeSnap");
+        Serial.println(pumptimeSnap);
+      }
       } else {
         masterTimerState = masterTimerStates::NightTimer;
         daytime = night;
@@ -27,43 +45,44 @@ void FSM_MasterTimer() {
       }
       break;
     case masterTimerStates::DayTimer:
-      if (DEBUG)
-        //Serial.println("DayTimer");
-      if (now.unixtime() - pumptimeSnap >= pumpInterval*hourInSec){
+      if (false)
+        Serial.println("DayTimer");
+      if (now.unixtime() - pumptimeSnap >= pumpInterval * hourInSec) {
         pumptimeSnap = now.unixtime();
         pumpTimingFlag = true;
       }
-      if (now.unixtime()-sampletimeSnap >= 30*minInSec){
+      if (now.unixtime() - sampletimeSnap >= sampleTime * minInSec) {
         sampletimeSnap = now.unixtime();
         sensorTimingFlag = true;
       }
-      if (now.unixtime()-daytimeSnap >= daytimeDuration[phase].h*hourInSec + daytimeDuration[phase].m*minInSec) {
+      if (now.unixtime() - daytimeSnap >= (daytimeDuration[phase].h * hourInSec + daytimeDuration[phase].m * minInSec)) {
         ledsOffTimingFlag = true;
         //sensorTimingFlag = false; so as not to overwrite sensor command
         pumpTimingFlag = false;
       }
 
-      if (pumpTimingFlag) {
-        masterTimerState = masterTimerStates::CmdPump;
-        pumpTimingFlag = false;
+      if (ledsOffTimingFlag) {
+        masterTimerState = masterTimerStates::CmdLightOff;
+        ledsOffTimingFlag = false;
+        break;
       } else if (sensorTimingFlag) {
         masterTimerState = masterTimerStates::CmdSensors;
         sensorTimingFlag = false;
-      } else if (ledsOffTimingFlag) {
-        masterTimerState = masterTimerStates::CmdLightOff;
-        ledsOffTimingFlag = false;
-        return;
+      } else if (pumpTimingFlag) {
+        masterTimerState = masterTimerStates::CmdPump;
+        pumpTimingFlag = false;
       }
       break;
     case masterTimerStates::NightTimer:
-      if (DEBUG)
+      if (false)
         Serial.println("NightTimer");
-        
+
       if (now.hour() == hPump && now.minute() == mPump && pumpBlock == false) {
+        pumptimeSnap = now.unixtime();
         pumpBlock = true;
         pumpTimingFlag = true;
       }
-      if (now.unixtime()-sampletimeSnap >= 30*minInSec){
+      if (now.unixtime() - sampletimeSnap >= sampleTime * minInSec) {
         sampletimeSnap = now.unixtime();
         sensorTimingFlag = true;
       }
@@ -73,16 +92,16 @@ void FSM_MasterTimer() {
         pumpTimingFlag = false;
       }
 
-      if (pumpTimingFlag) {
-        masterTimerState = masterTimerStates::CmdPump;
-        pumpTimingFlag = false;
+      if (ledsOnTimingFlag) {
+        masterTimerState = masterTimerStates::CmdLightOn;
+        ledsOnTimingFlag = false;
+        break;
       } else if (sensorTimingFlag) {
         masterTimerState = masterTimerStates::CmdSensors;
         sensorTimingFlag = false;
-      } else if (ledsOnTimingFlag) {
-        masterTimerState = masterTimerStates::CmdLightOn;
-        ledsOnTimingFlag = false;
-        return;
+      } else if (pumpTimingFlag) {
+        masterTimerState = masterTimerStates::CmdPump;
+        pumpTimingFlag = false;
       }
       break;
     case masterTimerStates::CmdLightOn:
@@ -96,6 +115,9 @@ void FSM_MasterTimer() {
       pumpBlock = false;
       phase = uiPhase;
       pumpInterval = uiPumpInterval;
+      //EEPROM write daytimeSnap
+      EEPROM.put(0, now.unixtime());
+      daytimeSnap = now.unixtime();
       masterTimerState = masterTimerStates::DayTimer;
       return;
     case masterTimerStates::CmdLightOff:
@@ -117,9 +139,9 @@ void FSM_MasterTimer() {
         masterTimerState = masterTimerStates::NightTimer;
       break;
     case masterTimerStates::CmdSensors:
+      canWrite(0);
       if (DEBUG)
         Serial.println("CmdSensors");
-      canWrite(0);
       sampleFlagTop = true;
       if (daytime == day)
         masterTimerState = masterTimerStates::DayTimer;
@@ -128,26 +150,5 @@ void FSM_MasterTimer() {
       break;
     default:
       Serial.println("Error: FSM_MasterTimer()");
-  }
-}
-
-uint32_t eepromToInt(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
-  uint32_t tempI = (a << 24) | (b << 16) | (c << 8) | d;
-  return tempI;
-}
-
-uint8_t splitInt(uint32_t intData, uint8_t byt) {
-  if ( byt == BYT0) {
-    return (intData & 0xFF);
-  } else if (byt == BYT1) {
-    return ((intData >> 8) & 0xFF);
-  } else if (byt == BYT2) {
-    return ((intData >> 16) & 0xFF);
-  } else if (byt == BYT3) {
-    return ((intData >> 24) & 0xFF);
-  }
-  else {                                          //Just for testing purposes
-    Serial.println("splitInt() wrong byt input!!!!");
-    return 0;
   }
 }

@@ -22,7 +22,7 @@ MOSFET fanLeds(FanLeds);
 volatile CanBuffer canBuffer;
 volatile CanFloatBuffer canFloatBuffer;
 volatile CanFrameStream cfStream;
-MCP2515 mcp2515(A3); //SS pin A3
+MCP2515 mcp2515(CAN_CS); //SS pin A3
 //#RTC
 RTC_DS1307 rtc;
 DateTime now;
@@ -64,7 +64,7 @@ void loop() {
   unsigned long currentTime = millis();
   if ( currentTime - previousTime >= systemPeriod ) {
     previousTime = currentTime;
-    Serial.println(previousTime);
+    //Serial.println(previousTime);
     now = rtc.now();
 
     //#CAN
