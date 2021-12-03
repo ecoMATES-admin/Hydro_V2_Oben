@@ -2,13 +2,16 @@
 #include <DHT.h>
 #include <Wire.h>
 #include <OneWire.h>
+#include <SoftwareSerial.h>
 #include <mcp2515.h>
 #include <RTClib.h>
 #include <EEPROM.h>
+
 //##Header-Files##
 #include "globalVariables.h"
 #include "MOSFET.h"
 #include "CAN1.h"
+
 //##Object intialization##
 //#TempHum#
 #define DHTTYPE DHT22
@@ -26,34 +29,27 @@ MCP2515 mcp2515(CAN_CS); //SS pin A3
 //#RTC
 RTC_DS1307 rtc;
 DateTime now;
+//SoftwareSerial
+SoftwareSerial NodeSerial(3, 4); //(rx,tx)
+
+//##SETUP##
 void setup() {
-  //#Objects
+  //#Object begins
   Serial.begin(2000000);
   dhtSensorTop.begin();
   dhtSensorOutside.begin();
   Wire.begin();
+  //#Can
   SPI.usingInterrupt(InterruptPin);
   mcp2515.reset();
   mcp2515.setBitrate(CAN_1000KBPS, MCP_16MHZ);
   mcp2515.setNormalMode();
-  //mcp2515.setLoopbackMode();
-
-    /*
-      if (! rtc.isrunning()) {
-      Serial.println("RTC is NOT running!");
-      // following line sets the RTC to the date & time this sketch was compiled
-      rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-      }*/
-    rtc.begin();
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  NodeSerial.begin(115200);
+  //#RTC
+  rtc.begin();
   if (DEBUG) {
     DateTime now = rtc.now();
-    Serial.print("Hour: ");
-    Serial.println(now.hour());
-    Serial.print("Minute: ");
-    Serial.println(now.minute());
-    Serial.print("Second: ");
-    Serial.println(now.second());
+    Serial.println(now.timestamp(DateTime::TIMESTAMP_FULL));
   }
   //#Pins
   attachInterrupt(InterruptPin, irqHandler, FALLING);
@@ -77,18 +73,6 @@ void loop() {
     FSM_LedsFan();
     FSM_MasterTimer();
     FSM_Sensordata();
-    //masterDummy();
-
+    FSM_DataLog();
   }
 }
-
-void masterDummy() {
-  if (Serial.available() > 0) {
-    int message = Serial.parseInt();
-    Serial.println(message);
-    if (message == 1) {
-      message = 0;
-      testFlag = true;
-    }
-  }
-};

@@ -8,21 +8,39 @@ void FSM_MasterTimer() {
       //Retrieve last daytime snapshot from EEPROM
       EEPROM.get(BYT0, daytimeSnap);
       if (DEBUG) {
-        Serial.println("daytimeSnap");
-        Serial.println(daytimeSnap);
         Serial.println("now.unixtime()");
         Serial.println(now.unixtime());
+        Serial.println("daytimeSnap");
+        Serial.println(daytimeSnap);
       }
-      dif = (now.unixtime() - daytimeSnap) % dayInSec; //Calculate difference nowtime vs daytimeSnap, Modulo in case system was off for longer then a day
-      sampletimeSnap = now.unixtime() - (dif % (sampleTime * minInSec)); // Same as pumptime
+      dif = now.unixtime() - daytimeSnap;
+      /*##########################################################################
+         Adjustment of daytimeSnap and dif if system was off for longer then a day
+      */
+      if (dif >= dayInSec) {
+        daytimeSnap = daytimeSnap + (dif / dayInSec) * dayInSec;
+        dif = dif % dayInSec;
+        if(DEBUG){
+          Serial.println("daytimeSnap");
+          Serial.println(daytimeSnap);
+        }
+      }
+      //##########################################################################
+      sampletimeSnap = now.unixtime() - (dif % (sampleTime * minInSec)); // Calculate sampleTimeSnap, by first calculating seconds passed since the last (not conducted) sampleTime and then subtracting that value from nowtime.
       if (DEBUG) {
         Serial.println("dif");
         Serial.println(dif);
         Serial.println("sampletimeSnap");
         Serial.println(sampletimeSnap);
       }
-      //here the phase and pumpcycle should also be retrieved from EEPROM
-      daytimeSec= daytimeDuration[phase].h * hourInSec + daytimeDuration[phase].m * minInSec;
+      /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       * here the phase and pumpcycle should also be retrieved from EEPROM
+       */
+      
+      /*####################################
+       * Decision if it is day or night time
+       */
+      daytimeSec = daytimeDuration[phase].h * hourInSec + daytimeDuration[phase].m * minInSec;
       if (DEBUG) {
         Serial.println("daytimeSec");
         Serial.println(daytimeSec);
@@ -33,16 +51,17 @@ void FSM_MasterTimer() {
         Serial.println("DayTimer");
         canWrite(2, 1);
         ledsFanOnFlag = true;
-        pumptimeSnap = now.unixtime() - ((dif + 10 * minInSec) % (pumpInterval * hourInSec)); //Calculate pumptimeSnap, by first calculating seconds passed since the last pumptime and then subtracting that value from nowtime. 10 min shift bcs of pumptime shift
+        pumptimeSnap = now.unixtime() - ((dif + 10 * minInSec) % (pumpInterval * hourInSec)); //Same as sampleTimeSnap. 10 min shift bcs of pumptime shift
         if (DEBUG) {
-        Serial.println("pumptimeSnap");
-        Serial.println(pumptimeSnap);
-      }
+          Serial.println("pumptimeSnap");
+          Serial.println(pumptimeSnap);
+        }
       } else {
         masterTimerState = masterTimerStates::NightTimer;
         daytime = night;
         Serial.println("NightTimer");
       }
+      //####################################
       break;
     case masterTimerStates::DayTimer:
       if (false)

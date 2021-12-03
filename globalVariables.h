@@ -27,11 +27,12 @@
 //##Variables##
 //#Debug#
 #define DEBUG 1
-bool testFlag = false;
+//bool testFlag = false;
 //#SystemClock#
 unsigned long previousTime = 0; 
 unsigned long systemPeriod = 10; // milliseconds
 
+//#Flags#
 //MasterTimer
 bool ledsOnTimingFlag= false;
 bool ledsOffTimingFlag = false;
@@ -42,8 +43,11 @@ bool sampleFlagTop = false;
 bool circulationFanOnFlag = true;
 bool ledsFanOnFlag = false;
 const bool filterFlagOnFlag = true;
+//Data Logging
+uint8_t sendAllFlag = 0;
+bool sendWaterFlag = false;
 
-//#Sensor data #
+//#Sensor data#
 float tempHumValBottom[2] = {0};
 float tempHumValTop[2] = {0};
 float tempHumValOutside[2] = {0};
@@ -53,11 +57,6 @@ float ecVal = 0;
 float waterLevelVal = 0;
 
 //#FSM_Sensordata#
-uint8_t readCounter = 0; //timer for ReadValues State
-float humError = 199.0, tempError = 99.0;
-float tempHumTop[2] = {0};
-float tempHumOutside[2] = {0};
-
 enum class sensorStates:uint8_t{
   Idle, ReadTop,ReadOutside
 };
@@ -90,7 +89,15 @@ enum class filterFanStates:uint8_t{
 };
 filterFanStates filterFanState = filterFanStates::FanOn;
 
+//#FSM_DataLog#
+char dataBuffer[6] = {0};
+enum class dataLogStates:uint8_t{
+  Idle, SendAll, SendWater
+};
+dataLogStates dataLogState = dataLogStates::Idle;
+
 //#FSM_MasterTimer#
+//Timing
 const uint32_t dayInSec = 86400;
 const uint16_t hourInSec = 3600;
 const uint8_t minInSec = 60;
@@ -100,37 +107,36 @@ uint32_t sampletimeSnap = 0;
 uint32_t dif=0;
 bool pumpBlock = false;
 //Sensors
-uint8_t sampleTime = 1;
+uint8_t sampleTime = 10;
 //Light
+enum phases:uint8_t{
+  sprout, veggie, flower,test
+};
+phases phase = sprout; //phase needs to be stored in EEPROM
+phases uiPhase = sprout;
+enum daytimes:uint8_t{
+  day, night
+};
+daytimes daytime = night;
 struct timeStamp{
   int h,m;
 };
-int hOn = 18, mOn = 41; //Test purposes
 timeStamp daytimeDuration[4] ={
   {12,0},
   {18,0},
   {12,0},
   {0,2} //Test purposes
 };
-enum daytimes:uint8_t{
-  day, night
-};
-daytimes daytime = night;
-enum phases:uint8_t{
-  sprout, veggie, flower,test
-};
-phases phase = test; //phase needs to be stored in EEPROM
-phases uiPhase = test;
+int hOn = 8, mOn = 0; 
 //Pump
-int hPump = 18, mPump =4;
+int hPump = 7, mPump =50;
 enum pumpIntervals:uint8_t{
    h1=1, h2=2, h3=3, h6=6
 };
 pumpIntervals pumpInterval = h1;
 pumpIntervals uiPumpInterval = h1;
-struct pumpTime{
-  uint8_t h,m;
-};
+
+//States
 enum class masterTimerStates:uint8_t{
   Init,DayTimer, NightTimer, CmdLightOn, CmdLightOff, CmdPump, CmdSensors
 };

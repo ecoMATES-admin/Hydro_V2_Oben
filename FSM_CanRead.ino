@@ -32,6 +32,7 @@ void FSM_CanRead() {
     switch (tempInstF.data[1]) {
       case 3:
         tempHumValBottom[1]= tempF;
+        sendAllFlag++;
         if(DEBUG){
         Serial.print("Temp Bottom: ");
         Serial.println(tempHumValBottom[1]);
@@ -39,6 +40,7 @@ void FSM_CanRead() {
         break;
       case 4:
       tempHumValBottom[0]= tempF;
+      sendAllFlag++;
         if(DEBUG){
         Serial.print("Hum Bottom: ");
         Serial.println(tempHumValBottom[0]);
@@ -46,6 +48,7 @@ void FSM_CanRead() {
         break;
       case 5:
       waterTempVal= tempF;
+      sendAllFlag++;
         if(DEBUG){
         Serial.print("Watertemp: ");
         Serial.println(waterTempVal);
@@ -53,6 +56,7 @@ void FSM_CanRead() {
         break;
       case 6:
       ecVal= tempF;
+      sendAllFlag++;
         if(DEBUG){
         Serial.print("EC: ");
         Serial.println(ecVal);
@@ -60,6 +64,7 @@ void FSM_CanRead() {
         break;
       case 7:
       phVal= tempF;
+      sendAllFlag++;
         if(DEBUG){
         Serial.print("PH: ");
         Serial.println(phVal);
@@ -67,6 +72,7 @@ void FSM_CanRead() {
         break;
       case 8:
       waterLevelVal= tempF;
+      sendWaterFlag=true;
         if(DEBUG){
         Serial.print("Waterlevel: ");
         Serial.println(waterLevelVal);
