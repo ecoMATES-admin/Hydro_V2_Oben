@@ -133,8 +133,8 @@ int hPump = 7, mPump =50;
 enum pumpIntervals:uint8_t{
    h1=1, h2=2, h3=3, h6=6
 };
-pumpIntervals pumpInterval = h1;
-pumpIntervals uiPumpInterval = h1;
+pumpIntervals pumpInterval = h2;
+pumpIntervals uiPumpInterval = h2;
 
 //States
 enum class masterTimerStates:uint8_t{

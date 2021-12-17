@@ -106,7 +106,7 @@ inline bool CanBuffer::read(instruction &instruct){
 
 class CanFloatBuffer {
 
-    static const int bufferSize = 2;
+    static const int bufferSize = 3;
     instructionFloat fsmBuffer[bufferSize];
 
     int readIndex = 0;
