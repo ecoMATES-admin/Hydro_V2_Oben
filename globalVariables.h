@@ -98,16 +98,16 @@ dataLogStates dataLogState = dataLogStates::Idle;
 
 //#FSM_MasterTimer#
 //Timing
-const uint32_t dayInSec = 86400;
-const uint16_t hourInSec = 3600;
-const uint8_t minInSec = 60;
+#define dayInSec 86400
+#define hourInSec 3600
+#define minInSec 60
 uint32_t daytimeSnap = 0;
 uint32_t pumptimeSnap = 0;
 uint32_t sampletimeSnap = 0;
 uint32_t dif=0;
 bool pumpBlock = false;
 //Sensors
-uint8_t sampleTime = 10;
+uint8_t sampleTime = 30; //in sec, sampleTime = [2,4] & ]5,x]
 //Light
 enum phases:uint8_t{
   sprout, veggie, flower,test
@@ -119,13 +119,13 @@ enum daytimes:uint8_t{
 };
 daytimes daytime = night;
 struct timeStamp{
-  int h,m;
+  uint8_t h,m;
 };
-timeStamp daytimeDuration[4] ={
+timeStamp daytimeDuration[3] ={
   {12,0},
   {18,0},
   {12,0},
-  {0,2} //Test purposes
+  //{0,2} //Test purposes
 };
 int hOn = 8, mOn = 0; 
 //Pump
