@@ -12,8 +12,8 @@
 #define TempHumOutside 7
 //#Actuators
 #define FanFilter 8
-#define FanLeds 9
-#define FanCirculation 10
+#define FanLeds 10
+#define FanCirculation 9
 //#Display
 #define BUTTON A0
 
@@ -98,19 +98,19 @@ dataLogStates dataLogState = dataLogStates::Idle;
 
 //#FSM_MasterTimer#
 //Timing
-#define dayInSec 86400
-#define hourInSec 3600
-#define minInSec 60
+const uint32_t dayInSec = 86400;
+const uint16_t hourInSec = 3600;
+const uint8_t minInSec = 60;
 uint32_t daytimeSnap = 0;
 uint32_t pumptimeSnap = 0;
 uint32_t sampletimeSnap = 0;
 uint32_t dif=0;
 bool pumpBlock = false;
 //Sensors
-uint8_t sampleTime = 30; //in sec, sampleTime = [2,4] & ]5,x]
+uint8_t sampleTime = 2 ; //in sec, sampleTime = {2,10,30}
 //Light
 enum phases:uint8_t{
-  sprout, veggie, flower,test
+  sprout, veggie, flower
 };
 phases phase = sprout; //phase needs to be stored in EEPROM
 phases uiPhase = sprout;

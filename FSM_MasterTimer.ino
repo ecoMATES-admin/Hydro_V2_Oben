@@ -40,7 +40,7 @@ void FSM_MasterTimer() {
       /*####################################
        * Decision if it is day or night time
        */
-      daytimeSec = daytimeDuration[phase].h * hourInSec + daytimeDuration[phase].m * minInSec;
+      daytimeSec = (daytimeDuration[phase].h * hourInSec) + (daytimeDuration[phase].m * minInSec);
       if (DEBUG) {
         Serial.println("daytimeSec");
         Serial.println(daytimeSec);
@@ -74,7 +74,7 @@ void FSM_MasterTimer() {
         sampletimeSnap = now.unixtime();
         sensorTimingFlag = true;
       }
-      if (now.unixtime() - daytimeSnap >= (daytimeDuration[phase].h * hourInSec + daytimeDuration[phase].m * minInSec)) {
+      if (now.unixtime() - daytimeSnap >= ((daytimeDuration[phase].h * hourInSec) + (daytimeDuration[phase].m * minInSec))) {
         ledsOffTimingFlag = true;
         //sensorTimingFlag = false; so as not to overwrite sensor command
         pumpTimingFlag = false;

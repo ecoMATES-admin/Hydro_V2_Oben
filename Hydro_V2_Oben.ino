@@ -50,6 +50,12 @@ void setup() {
   if (DEBUG) {
     DateTime now = rtc.now();
     Serial.println(now.timestamp(DateTime::TIMESTAMP_FULL));
+    Serial.println("dayInSec");
+    Serial.println(dayInSec);
+    Serial.println("hourInSec");
+    Serial.println(hourInSec);
+    Serial.println("minInSec");
+    Serial.println(minInSec);
   }
   //#Pins
   attachInterrupt(InterruptPin, irqHandler, FALLING);
