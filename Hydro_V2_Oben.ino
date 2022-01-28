@@ -1,11 +1,11 @@
 //##Libraries##
-#include <DHT.h>
 #include <Wire.h>
 #include <OneWire.h>
 #include <SoftwareSerial.h>
 #include <mcp2515.h>
 #include <RTClib.h>
 #include <EEPROM.h>
+#include <Adafruit_SHT31.h>
 
 //##Header-Files##
 #include "globalVariables.h"
@@ -14,9 +14,9 @@
 
 //##Object intialization##
 //#TempHum#
-#define DHTTYPE DHT22
-DHT dhtSensorTop(TempHumTop, DHTTYPE);
-DHT dhtSensorOutside(TempHumOutside, DHTTYPE);
+Adafruit_SHT31 shtTop = Adafruit_SHT31();
+Adafruit_SHT31 shtOutside = Adafruit_SHT31();
+
 //#Mosfet
 MOSFET fanCirculation(FanCirculation);
 MOSFET fanFilter(FanFilter);
@@ -36,9 +36,11 @@ SoftwareSerial NodeSerial(3, 4); //(rx,tx)
 void setup() {
   //#Object begins
   Serial.begin(2000000);
-  dhtSensorTop.begin();
-  dhtSensorOutside.begin();
   Wire.begin();
+  if (! shtTop.begin(0x44) && DEBUG)   
+    Serial.println("Couldn't find sthTop");
+  if (! shtOutside.begin(0x45) && DEBUG)   
+    Serial.println("Couldn't find sthOutside");
   //#Can
   SPI.usingInterrupt(InterruptPin);
   mcp2515.reset();

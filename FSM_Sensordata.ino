@@ -7,29 +7,24 @@ void FSM_Sensordata() {
       }
       break;
     case sensorStates::ReadTop:
-      if (!dhtSensorTop.readTempAndHumidity(tempHumValTop)) {
-        if (DEBUG) {
-          Serial.print("Top: \t");
-          Serial.print(tempHumValTop[0]);
-          Serial.print("\t");
-          Serial.println(tempHumValTop[1]);
-        }
-      }else{
-        //watchdog?
+      tempHumValTop[1] = shtTop.readTemperature();
+      tempHumValTop[0] = shtTop.readHumidity();
+      if (DEBUG) {
+        Serial.print("Top: \t");
+        Serial.print(tempHumValTop[0]);
+        Serial.print("\t");
+        Serial.println(tempHumValTop[1]);
       }
-      
-        sensorState = sensorStates::ReadOutside;
+      sensorState = sensorStates::ReadOutside;
       break;
     case sensorStates::ReadOutside:
-      if (!dhtSensorOutside.readTempAndHumidity(tempHumValOutside)) {
-        if (DEBUG) {
-          Serial.print("Outside:");
-          Serial.print(tempHumValOutside[0]);
-          Serial.print("\t");
-          Serial.println(tempHumValOutside[1]);
-        }
-      }else{
-        //watchdog?
+      tempHumValOutside[1] = shtOutside.readTemperature();
+      tempHumValOutside[0] = shtOutside.readHumidity();
+      if (DEBUG) {
+        Serial.print("Top: \t");
+        Serial.print(tempHumValOutside[0]);
+        Serial.print("\t");
+        Serial.println(tempHumValOutside[1]);
       }
       sensorState = sensorStates::Idle;
       break;

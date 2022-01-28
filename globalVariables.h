@@ -107,7 +107,8 @@ uint32_t sampletimeSnap = 0;
 uint32_t dif=0;
 bool pumpBlock = false;
 //Sensors
-uint8_t sampleTime = 2 ; //in sec, sampleTime = {2,10,30}
+uint8_t sampleTime = 15 ; //in sec, sampleTime = {2,15,30} //2 sec ist sehr wohl ein Problem denn gepumpt wird um 50 nach....
+                                                           //bzw muss man 2 potentielle Probleme festhalten: Messen während gepumpt wird & gleichzeitiges hochladen von Wasserpegel und Rest
 //Light
 enum phases:uint8_t{
   sprout, veggie, flower
