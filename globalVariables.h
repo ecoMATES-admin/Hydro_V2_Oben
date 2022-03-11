@@ -7,9 +7,6 @@
 #define SW_TX 3
 #define SW_RX 4
 #define CAN_CS A3
-//#Sensors
-#define TempHumTop 6
-#define TempHumOutside 7
 //#Actuators
 #define FanFilter 8
 #define FanLeds 10

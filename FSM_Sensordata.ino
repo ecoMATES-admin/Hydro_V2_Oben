@@ -21,7 +21,7 @@ void FSM_Sensordata() {
       tempHumValOutside[1] = shtOutside.readTemperature();
       tempHumValOutside[0] = shtOutside.readHumidity();
       if (DEBUG) {
-        Serial.print("Top: \t");
+        Serial.print("Outside: \t");
         Serial.print(tempHumValOutside[0]);
         Serial.print("\t");
         Serial.println(tempHumValOutside[1]);

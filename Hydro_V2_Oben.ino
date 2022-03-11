@@ -1,6 +1,5 @@
 //##Libraries##
 #include <Wire.h>
-#include <OneWire.h>
 #include <SoftwareSerial.h>
 #include <mcp2515.h>
 #include <RTClib.h>
@@ -37,10 +36,18 @@ void setup() {
   //#Object begins
   Serial.begin(2000000);
   Wire.begin();
-  if (! shtTop.begin(0x44) && DEBUG)   
-    Serial.println("Couldn't find sthTop");
-  if (! shtOutside.begin(0x45) && DEBUG)   
-    Serial.println("Couldn't find sthOutside");
+  if (! shtTop.begin(0x45) && DEBUG)   
+    Serial.println("Couldn't find shtTop");
+  if (! shtOutside.begin(0x44) && DEBUG)   
+    Serial.println("Couldn't find shtOutside");
+  shtTop.heater(false);
+  if (shtTop.isHeaterEnabled()){
+    Serial.println("shtTop heater is ON");
+  }
+  shtOutside.heater(false);
+  if (shtOutside.isHeaterEnabled()){
+    Serial.println("shtOutside heater is ON");
+  }
   //#Can
   SPI.usingInterrupt(InterruptPin);
   mcp2515.reset();
