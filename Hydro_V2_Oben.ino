@@ -26,7 +26,7 @@ volatile CanFloatBuffer canFloatBuffer;
 volatile CanFrameStream cfStream;
 MCP2515 mcp2515(CAN_CS); //SS pin A3
 //#RTC
-RTC_DS1307 rtc;
+RTC_DS3231 rtc;
 DateTime now;
 //SoftwareSerial
 SoftwareSerial NodeSerial(3, 4); //(rx,tx)
