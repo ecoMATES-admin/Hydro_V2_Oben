@@ -29,7 +29,7 @@ MCP2515 mcp2515(CAN_CS); //SS pin A3
 RTC_DS3231 rtc;
 DateTime now;
 //SoftwareSerial
-SoftwareSerial NodeSerial(3, 4); //(rx,tx)
+SoftwareSerial NodeSerial(SW_RX, SW_TX); //(rx,tx)
 
 //##SETUP##
 void setup() {

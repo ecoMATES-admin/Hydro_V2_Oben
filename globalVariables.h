@@ -4,8 +4,8 @@
 //## Pinning##
 #define InterruptPin 0 //Arduino pin 2
 //#Bus
-#define SW_TX 3
-#define SW_RX 4
+#define SW_TX 4
+#define SW_RX 3
 #define CAN_CS A3
 //#Actuators
 #define FanFilter 8
